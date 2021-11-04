@@ -1,0 +1,8 @@
+#Define the goal
+geometry_msgs/Pose pose
+---
+#Define the result
+uint16 result
+---
+#Define the feedback
+uint16 state
