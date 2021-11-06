@@ -1,0 +1,5 @@
+#Define request
+moveit_msgs/Grasp Reques
+---
+#Define reply
+moveit_msgs/Grasp Repli

@@ -1,4 +1,6 @@
-# System Integration Challenge
+# Bryan Marquez - A01562119 - System Integration Challenge
+# Link a explicacion alternativa: https://docs.google.com/document/d/1rihKQz8ShYDtqp-zwvBOkMsdKTluor8PSrqOQZvn5Yk/edit?usp=sharing
+
 ## Mechanism integration
 
 ## Description
@@ -53,9 +55,17 @@ Here is a technical description of the different nodes/actions/services the @HOM
    
 ## Usage
 For evaluation and debugging of your system you can run the following to mock the external topics connected to the mechanism action client:
-
+   Suggestion: Open six terminals (One for each .py file and the ros master) and make sure to type the following two commands
+   $ catkin_make
+   $ source devel/setup.bash
+   First terminal run the following
+   $ roscore
+   Run one of the next commands per terminal starting with mechanical
    ```bash
-   $ rosrun system_stimuli mechanical_stimuli.py
+   $ rosrun system_stimuli mechanical_client.py
+   $ rosrun system_stimuli arm_server.py
+   $ rosrun system_stimuli neck_server.py
+   $ rosrun system_stimuli elevator_server.py
    $ rosrun system_stimuli shutdown_system.py
    ```
 
