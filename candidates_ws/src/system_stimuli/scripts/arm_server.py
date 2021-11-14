@@ -29,66 +29,63 @@ class ArmServer:
         #append data
         self._feedback.state = 0
         self._result.result = 0
-        print('Executing arm grasp movement')
+        rospy.loginfo('Executing arm grasp movement')
         response = 0
         i = 0
         #i = goal.batch_size
         while i in range(0,3):
             # check that preempt has not been requested by the client
             if self.server.is_preempt_requested():
-                print('Server preempted')
+                rospy.loginfo('Server preempted')
                 self.server.set_preempted()
                 success = False
                 break
 
             # update feedback & result
             if i == 0:
-                print('------------ Calculating FK ------------')
+                rospy.loginfo('------------ Calculating FK ------------')
                 self._feedback.state = 0
                 # FORWARD KINEMATICS SERVICE
                 def handle_newGrasp(req):
-                    print("\nAdjusting arm goal\n")
+                    rospy.loginfo("\nAdjusting arm goal\n")
                     return FKResponse(req)
                 def postGrasp():
                     s = rospy.Service('FK', FK, handle_newGrasp)
-                    print(" Ready to execute Forward Kinematics by service\n")
+                    rospy.loginfo(" Ready to execute Forward Kinematics by service\n")
             if i == 1:
-                print('-------- Executing arm movement --------')
+                rospy.loginfo('-------- Executing arm movement --------')
                 self._feedback.state = 1
             if i == 2:
-                print('-------- Executing grip movement --------')
+                rospy.loginfo('-------- Executing grip movement --------')
                 self._feedback.state = 2
             
             self.server.publish_feedback(self._feedback)
             r.sleep()
             i += 1
-            #Line 66 & 67 have the same purpose as Shutdown_system
-            data = rospy.Publisher('system_health', UInt16, queue_size=10)
-            print('\nAlso checking robot state...')
+
         if success:
-            data.publish(0) # System is stable
             self._result.result = 0 #TCP Correctly positioned
             rospy.loginfo('Succeeded checking arm.')
             self.server.set_succeeded(self._result)
         elif self._feedback.state == 0:
             self._result.result = 3 #Unknown error
+            self._feedback.state = 3
             rospy.loginfo('Unknown error while calculating FK.')
-            data.publish(1) # System encountered an error
             self.server.set_aborted()
         elif self._feedback.state == 1:
             self._result.result = 1 #Arm stuck
+            self._feedback.state = 2
             rospy.loginfo('Arm stuck while executing movement.')
-            data.publish(1) # System encountered an error
             self.server.set_aborted()
         elif self._feedback.state == 2:
             self._result.result = 2 #Grip stuck
+            self._feedback.state = 2
             rospy.loginfo('Grip stuck while executing movement.')
-            data.publish(1) # System encountered an error
             self.server.set_aborted()
         else:
             rospy.loginfo('Unknown error.')
+            self._feedback.state = 2
             self.server.set_aborted()
-        rospy.loginfo("\nSystem status published.")
 
 if __name__ == '__main__':
     rospy.init_node('arm_server')
